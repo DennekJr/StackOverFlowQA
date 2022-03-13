@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using StackOverFlowQA.Data;
 using StackOverFlowQA.Models;
 using System.Diagnostics;
@@ -80,11 +82,22 @@ namespace StackOverFlowQA.Controllers
                 string userMail = User.Identity.Name;
                 ApplicationUser user = await _userManager.FindByEmailAsync(userMail);
                 Question questionToDelete = db.Questions.First(q => q.Id == QId);
-                questionToDelete.User.Questions.Remove(questionToDelete);
-                foreach(var ans in db.Answers){
-                    if(ans.QuestionToAnswer.Id == questionToDelete.Id)
+                //questionToDelete.User.Questions.Remove(questionToDelete);
+                var votes = db.Votes.Include(x => x.Answer).Include(q => q.Question);
+                var answers = db.Answers.Include(q => q.QuestionToAnswer);
+                foreach (var vote in votes)
+                {
+                    if(vote.Answer.Id == questionToDelete.Id)
+                    {
+                        db.Votes.Remove(vote);
+                    }
+                }
+                foreach(var ans in answers)
+                {
+                    if(ans.QuestionId == questionToDelete.Id)
                     {
                         db.Answers.Remove(ans);
+
                     }
                 }
                 db.Questions.Remove(questionToDelete);
@@ -98,6 +111,7 @@ namespace StackOverFlowQA.Controllers
 
             return View(questions.ToList());
         }
+
 
         [Authorize(Roles="Admin")]
         public IActionResult CreateRole()
@@ -330,13 +344,13 @@ namespace StackOverFlowQA.Controllers
 
                 if (UQId.HasValue)
                 {
-                    Vote newVote = new Vote { Decision = true, User = user, Question = question };
+                    Vote newVote = new Vote { Decision = true, User = user, Question = question, QuestionId = question.Id};
                     question.Votes.Add(newVote);
                     db.Votes.Add(newVote);
                     user.Votes.Add(newVote);
                 } else
                 {
-                    Vote newVote = new Vote { Decision = false, User = user, Question = question };
+                    Vote newVote = new Vote { Decision = false, User = user, Question = question, QuestionId = question.Id };
                     question.Votes.Add(newVote);
                     db.Votes.Add(newVote);
                     user.Votes.Add(newVote);
@@ -350,13 +364,13 @@ namespace StackOverFlowQA.Controllers
                 Answer answer = db.Answers.First(x => x.Id == UAId || x.Id == DAId);
                 if (UAId.HasValue)
                 {
-                    Vote newVote = new Vote { Decision = true, User = user, Answer = answer };
+                    Vote newVote = new Vote { Decision = true, User = user, Answer = answer, AnswerId = answer.Id };
                     answer.Votes.Add(newVote);
                     db.Votes.Add(newVote);
                     user.Votes.Add(newVote);
                 } else
                 {
-                    Vote newVote = new Vote { Decision = false, User = user, Answer = answer };
+                    Vote newVote = new Vote { Decision = false, User = user, Answer = answer, AnswerId = answer.Id };
                     answer.Votes.Add(newVote);
                     db.Votes.Add(newVote);
                     user.Votes.Add(newVote);
@@ -404,7 +418,7 @@ namespace StackOverFlowQA.Controllers
             return View();
         }
 
-
+       
         public IActionResult Privacy()
         {
             return View();
