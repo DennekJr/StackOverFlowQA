@@ -1,0 +1,92 @@
+﻿@model IEnumerable<StackOverFlowQA.Models.Question>
+
+
+<a asp-action="CreateQuestion">Create New Question</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+             <td>
+                @Html.DisplayNameFor(model => model.DOC)
+            </td>
+            <td>
+                @Html.DisplayNameFor(model => model.Answers)
+            </td>
+            <td>
+                @Html.DisplayNameFor(model => model.Tags)
+            </td>
+           
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) 
+{
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DOC)
+            </td>
+            <td>
+                @item.Answers.Count()
+            </td>
+            <td>
+                 @if(@item.Tags != null){
+                      @foreach (var t in @item.Tags)
+                         {
+                            <a asp-action="QuestionsWithTag" asp-route-TagId="@t.Id">@t.Name</a>
+                         }
+                 }
+            </td>
+           
+            <td>
+                <a asp-action="CreateAnswer" asp-route-Qid="@item.Id">Answer this Question</a>
+            </td>
+
+            <td>
+                <a asp-action="QuestionsDetail" asp-route-qId="@item.Id">Details</a>
+            </td>
+             <td>
+                    @if (ViewBag.role != null)
+                    {
+                        <form asp-action="Index" method="Post">
+                        @foreach (var itemRole in ViewBag.role)
+                        {
+                            @if(itemRole == "Admin")
+                    {
+                      <button type="submit" asp-route-QId="@item.Id">Delete</button>
+                    }
+                        }
+                        
+                 </form>
+                    }
+                    
+               
+            </td>
+        </tr>
+}
+     <tr>
+        <th>
+            @Html.ActionLink("Last Name", "Index", new { sortOrder = ViewBag.NameSortParm })
+        </th>
+        
+        <th>
+            @Html.ActionLink("Date Created", "Index", new { sortOrder = ViewBag.DateSortParm })
+        </th>
+        <th>
+            @Html.ActionLink("Most Answered", "Index", new { sortOrder = ViewBag.MostAnsweredSortParm })
+        </th>
+        <th></th>
+    </tr>
+    </tbody>
+</table>

@@ -1,0 +1,38 @@
+﻿@model StackOverFlowQA.Models.Comment
+
+@{
+    ViewData["Title"] = "CommentOnQOrA";
+}
+@if(ViewBag.questionFound != null)
+{
+<h4>@ViewBag.questionFound.Description</h4>
+}
+
+@if(ViewBag.answerFound != null)
+{
+<h4>@ViewBag.answerFound.Description</h4>
+}
+
+
+<h4>Comments</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CommentOnQOrA" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Detail" class="control-label"></label>
+                <textarea asp-for="Detail" class="form-control" name="comment"></textarea>
+                <span asp-validation-for="Detail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" value="Create" class="btn btn-primary">Comment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

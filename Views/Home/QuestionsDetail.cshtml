@@ -1,0 +1,106 @@
+﻿@model StackOverFlowQA.Models.Question
+
+@{
+    ViewData["Title"] = "QuestionsDetail";
+}
+
+<h1>QuestionsDetail</h1>
+
+<div>
+    <h4>Question</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DOC)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DOC)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Answers)
+        </dt>
+        <dd class = "col-sm-10">
+            @if (Model.CorrectAnswerCount > 0)
+            {
+                @foreach (var t in Model.Answers)
+                {
+                    // dissplay coorrect answer on top
+                    if (t.AnswerIsCorrent == true)
+                    {
+                        <span>Correct Answer</span>
+                        <li>@t.Description</li>
+                    }
+                }
+                @foreach (var t in Model.Answers)
+                {
+                  @if (t.AnswerIsCorrent == false)
+                    {
+                            <li>@t.Description</li>
+                        @if( ViewBag.userId != @t.UserId)
+                        {
+                        <li>Up: <span>@t.Votes.Where(t => t.Decision == true).Count()</span><a  asp-action="VoteQOrA" asp-route-UAId="@t.Id">Vote Up</a></li>
+                        <li>Down: <span>@t.Votes.Where(t => t.Decision == false).Count()</span> <a asp-action="VoteQOrA" asp-route-DAId="@t.Id">Vote Down</a>
+                        </li>
+                        }
+                       
+                        
+                    }
+                }
+            }
+            else
+            {
+
+                @foreach (var t in Model.Answers)
+                {
+
+                    <form asp-action="QuestionDetail" method="post">
+                         <li>@t.Description</li>
+                        @if(ViewBag.userId != @t.UserId)
+                        {
+                        <li>Up: <span>@t.Votes.Where(t => t.Decision == true).Count()</span><a  asp-action="VoteQOrA" asp-route-UAId="@t.Id">Vote Up</a></li>
+                        <li>Down: <span>@t.Votes.Where(t => t.Decision == false).Count()</span> <a asp-action="VoteQOrA" asp-route-DAId="@t.Id">Vote Down</a>
+                        </li>
+                        }
+                        <li><a asp-action="CommentOnQOrA" asp-route-aId="@Model.Id">Comment on Answerr</a></li> 
+
+                        <button type="submit" asp-route-CAId="@t.Id" asp-route-qId="@Model.Id">Mark As correct</button>
+                    </form>
+                }
+            }
+
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Tags)
+        </dt>
+        <dd class = "col-sm-10">
+            @foreach(var t in Model.Tags)
+            {
+                <li>@t.Name</li>
+            }
+        </dd>
+    </dl>
+</div>
+<div>
+   @if( ViewBag.userId != Model.UserId)
+                        {
+                        <div>Vote Question:
+        <li><a  asp-action="VoteQOrA" asp-route-UQId="@Model.Id">Up</a></li>
+        <li><a asp-action="VoteQOrA" asp-route-DQId="@Model.Id">Down</a></li>
+    </div>
+                        }
+    
+    <a asp-action="CommentOnQOrA" asp-route-qId="@Model.Id">Comment on Question</a>
+    <a asp-action="Index">Back to List</a>
+</div>
